@@ -143,7 +143,11 @@ class SerialChain(Chain):
         link_transforms = {}
         trans = tf.Transform3d(matrix=world.get_matrix().repeat(N, 1, 1))
         for f in self._serial_frames:
-            trans = trans.compose(f.get_transform(th[:, cnt].view(N, 1)))
+            if f.joint.joint_type == "fixed":
+                trans = trans.compose(f.get_transform(th[:, 0].view(N, 1)))
+            else:
+                trans = trans.compose(f.get_transform(th[:, cnt].view(N, 1)))
+
             link_transforms[f.link.name] = trans.compose(f.link.offset)
             if f.joint.joint_type != "fixed":
                 cnt += 1
